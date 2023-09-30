@@ -6,7 +6,8 @@ import json
 def get_data(app_ids):
     save_reviews365(app_ids)
     data_list = get_data_list(app_ids)
-    return data_list
+    df = pd.DataFrame(data_list)
+    return df
 
 # save reviews of last 365 days via steamreviews
 def save_reviews365(app_ids):
@@ -41,5 +42,6 @@ def get_data_list(app_ids):
                 'comment_count': review_info['comment_count']
             }
             data_list.append(row)
+    
     return data_list
 

@@ -47,12 +47,14 @@ def get_data_from_steam(app_ids):
                     data_all = pd.concat([data_all, data_tmp], ignore_index=True)
                     reviews_downloaded += len(data_tmp)
 
+                    print(url)
+                    print('reviews downloaded: ' + str(reviews_downloaded))
+
                     if cursor_new == cursor:
                         break
                     else:  
                         cursor = cursor_new
-                    print(url)
-                    print('reviews downloaded: ' + str(reviews_downloaded))
+
                 except:
                     break
             time.sleep(5)

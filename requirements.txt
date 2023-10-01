@@ -1,0 +1,6 @@
+steamreviews
+wordcloud
+emoji
+pyspellchecker
+pandas
+textstat

@@ -39,13 +39,15 @@ def preProcessData(df):
 
         # Tokenization -> Word by word processing
         words = word_tokenize(clean_word)
-
         clean_words = []
         for word in words:
             # Convert numbers to words
             if word.isdigit():
-                word = num2words.num2words(word)
-
+                try:
+                    word = num2words.num2words(word)
+                except:
+                    continue
+                
             # Lemmatize
             word = lemmatizer.lemmatize(word)
 
@@ -57,8 +59,7 @@ def preProcessData(df):
             if (word not in stop_words):
                 clean_words.append(word)
 
-        clean_col.append(clean_words)
-        index = index + 1
-        print(index)
+        clean_col.append(" ".join(clean_words))
+
     df["review_clean"] = clean_col
     return df

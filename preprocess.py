@@ -1,9 +1,15 @@
 import re
-import re
 import emoji
+import inflect
+
 from spellchecker import SpellChecker
 
 def get_preprocessed_data(df):
+    
+
+
+    df = turn_lowercase(df) # turn lowercase
+    
     # spellchecker - takes a very long time
     spell = SpellChecker()
     df["review_preprocessed"] = [' '.join([spell.correction(i) for i in x.split()]) for x in df['review_preprocessed']]
@@ -15,5 +21,12 @@ def get_preprocessed_data(df):
 
     df['review_preprocessed'] = emoji.demojize(df['review_preprocessed']) # translate emojis
 
-    df['review_preprocessed'] = df['review'].str.lower() # lowercase
+
     return df
+
+# Convert characters to lower case
+def turn_lowercase(df):
+    return df['review'].str.lower()
+
+def convert_number_to_text(df):
+    return 

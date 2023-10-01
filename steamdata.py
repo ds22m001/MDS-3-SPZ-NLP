@@ -3,6 +3,7 @@ import steamtable
 from bs4 import BeautifulSoup
 import requests
 import database
+import time
 
 
 #get app_ids from steamtable.py
@@ -50,8 +51,12 @@ def get_data_from_steam(app_ids):
                         break
                     else:  
                         cursor = cursor_new
+                    print(url)
+                    print('reviews downloaded: ' + str(reviews_downloaded))
                 except:
                     break
+            time.sleep(5)
+
     return data_all
 
 # get data_list from json files

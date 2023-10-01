@@ -5,17 +5,9 @@ import requests
 import database
 
 
-#main function for update data
-def update_data():
-    app_ids = get_app_ids()
-    df = get_data_from_steam(app_ids)
-    data = get_data_cols(df)
-    send_to_database(data)
-
-
 #get app_ids from steamtable.py
 def get_app_ids():
-    html = steamtable.get_html()
+    html = steamtable.html
     soup = BeautifulSoup(html, 'html.parser')
     rows = soup.find_all('tr', class_='weeklytopsellers_TableRow_2-RN6')
     app_ids = []
@@ -23,6 +15,7 @@ def get_app_ids():
     for row in rows:
         app_number = row.find_all('td')[2].find('a')['href'].split('/')[-2]
         app_ids.append(app_number)
+    return app_ids
 
 
 
@@ -66,5 +59,12 @@ def get_data_cols(df):
     data = pd.DataFrame()
     data = df[['app_id', 'recommendationid', 'review', 'voted_up', 'votes_up', 'votes_funny', 'weighted_vote_score']]
     return data
+
+#main function for update data
+def update_data():
+    app_ids = get_app_ids()
+    df = get_data_from_steam(app_ids)
+    data = get_data_cols(df)
+    database.send_to_database(data)
 
 

@@ -1,32 +1,64 @@
 import re
+from nltk.corpus import stopwords
+from nltk import word_tokenize
+import num2words
+from nltk.stem.wordnet import WordNetLemmatizer
 import emoji
-import inflect
-
+import contractions
 from spellchecker import SpellChecker
 
-def get_preprocessed_data(df):
-    
+# Pre-processing
 
+def preProcessData(df):
 
-    df = turn_lowercase(df) # turn lowercase
-    
-    # spellchecker - takes a very long time
+    stop_words = set(stopwords.words('english'))
     spell = SpellChecker()
-    df["review_preprocessed"] = [' '.join([spell.correction(i) for i in x.split()]) for x in df['review_preprocessed']]
+    lemmatizer = WordNetLemmatizer()
 
-    df['review_preprocessed'] = df['review_preprocessed'].str.replace(r'\d+','') # remove numbers
-    df['review_preprocessed'] = df['review_preprocessed'].str.replace(r'\n',' ') # remove line breaks
-    df['review_preprocessed'] = df['review_preprocessed'].str.replace(r'\t',' ') # remove tabs
-    df['review_preprocessed'] = df['review_preprocessed'].str.replace('[^\w\s]','') #remove punctuation
+    index = 0
 
-    df['review_preprocessed'] = emoji.demojize(df['review_preprocessed']) # translate emojis
+    clean_col = []
+    for word in df["review"]:
 
+        # contractions 
+        clean_word = contractions.fix(word)
 
+        # emojis
+        clean_word = emoji.demojize(clean_word)
+
+        # lowercase
+        clean_word = clean_word.lower()
+
+        # Special characters cleaning
+        clean_word = re.sub(r'[^\w\s]','', clean_word)
+        clean_word = re.sub('_', '', clean_word)
+
+        # Additional spaces cleaning
+        clean_word = clean_word.strip()
+        clean_word = re.sub(' {2,}', ' ', clean_word)
+
+        # Tokenization -> Word by word processing
+        words = word_tokenize(clean_word)
+
+        clean_words = []
+        for word in words:
+            # Convert numbers to words
+            if word.isdigit():
+                word = num2words.num2words(word)
+
+            # Lemmatize
+            word = lemmatizer.lemmatize(word)
+
+            # Spell Check
+            #if spell.unknown(word):
+            #    word = spell.correction(word)
+
+            # Clean stop_words
+            if (word not in stop_words):
+                clean_words.append(word)
+
+        clean_col.append(clean_words)
+        index = index + 1
+        print(index)
+    df["review_clean"] = clean_col
     return df
-
-# Convert characters to lower case
-def turn_lowercase(df):
-    return df['review'].str.lower()
-
-def convert_number_to_text(df):
-    return 

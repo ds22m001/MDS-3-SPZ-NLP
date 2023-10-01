@@ -1,46 +1,70 @@
 import pandas as pd
-import steamreviews
-import json
+import steamtable
+from bs4 import BeautifulSoup
+import requests
+import database
 
-#main function for getting data
-def get_data(app_ids):
-    save_reviews365(app_ids)
-    data_list = get_data_list(app_ids)
-    df = pd.DataFrame(data_list)
-    return df
+
+#main function for update data
+def update_data():
+    app_ids = get_app_ids()
+    df = get_data_from_steam(app_ids)
+    data = get_data_cols(df)
+    send_to_database(data)
+
+
+#get app_ids from steamtable.py
+def get_app_ids():
+    html = steamtable.get_html()
+    soup = BeautifulSoup(html, 'html.parser')
+    rows = soup.find_all('tr', class_='weeklytopsellers_TableRow_2-RN6')
+    app_ids = []
+
+    for row in rows:
+        app_number = row.find_all('td')[2].find('a')['href'].split('/')[-2]
+        app_ids.append(app_number)
+
+
 
 # save reviews of last 365 days via steamreviews
-def save_reviews365(app_ids):
-    request_params = dict()
-    request_params['language'] = 'english'
-    request_params['num_per_page'] = '100'
-    request_params['filter'] = 'recent'
-    request_params['day_range'] = '365'
+def get_data_from_steam(app_ids):
+    language = 'english'
+    num_per_page = 100
+    filters = ['all', 'recent', 'updated']
 
-    while True:
-        try:
-            review_dict, query_count = steamreviews.download_reviews_for_app_id_batch(app_ids, chosen_request_params=request_params)
-        except:
-            break
+    total_reviews_to_download = 400
+
+    data_all = pd.DataFrame()
+
+    for app_id in app_ids:
+        for filter in filters:
+            reviews_downloaded = 0
+            cursor = '*'
+
+            while reviews_downloaded < total_reviews_to_download:
+                try:
+                    url = 'https://store.steampowered.com/appreviews/' + str(app_id) + '?json=1' + '&cursor=' + str(cursor) + '&language=' + str(language) + '&num_per_page=' + str(num_per_page) + '&filter=' + str(filter)
+                    response = requests.get(url)
+
+                    cursor_new = response.json()['cursor']
+
+                    data_tmp = pd.DataFrame(response.json()['reviews'])
+                    data_tmp['app_id'] = app_id
+                    data_all = pd.concat([data_all, data_tmp], ignore_index=True)
+                    reviews_downloaded += len(data_tmp)
+
+                    if cursor_new == cursor:
+                        break
+                    else:  
+                        cursor = cursor_new
+                except:
+                    break
+    return data_all
 
 # get data_list from json files
-def get_data_list(app_ids):
-    data_list = []
-    for app_id in app_ids:
-        file_path = 'data/review_' + str(app_id) + '.json'
-        with open(file_path, 'r') as json_file:
-            data_json = json.load(json_file)
-        for review_id, review_info in data_json['reviews'].items():
-            row = {
-                'app_id': app_id,
-                'recommendationid': review_info['recommendationid'],
-                'review': review_info['review'],
-                'voted_up': review_info['voted_up'],
-                'votes_up': review_info['votes_up'],
-                'votes_funny': review_info['votes_funny'],
-                'weighted_vote_score': review_info['weighted_vote_score']
-            }
-            data_list.append(row)
-    
-    return data_list
+def get_data_cols(df):
+    data = pd.DataFrame()
+    data = df[['app_id', 'recommendationid', 'review', 'voted_up', 'votes_up', 'votes_funny', 'weighted_vote_score']]
+    return data
+
 

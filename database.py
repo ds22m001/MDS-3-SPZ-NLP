@@ -13,3 +13,4 @@ def get_data_from_database():
     df = pd.read_sql('SELECT * FROM reviews', conn)
     conn.close()
     return df
+

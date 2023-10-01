@@ -59,7 +59,7 @@ def get_data_from_steam(app_ids):
 
                 except:
                     break
-            time.sleep(2)
+            #time.sleep(1)
             if reviews_downloaded < total_reviews_to_download:
                 print('fewer downloads than expected - app_id index: ' + str(app_ids.index(app_id)) + ', app_id: ' + str(app_id) + ', filter: ' + str(filter) + ', reviews downloaded: '  + str(reviews_downloaded) + ', url: ' + url)
     

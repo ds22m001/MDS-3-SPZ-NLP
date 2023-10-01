@@ -38,8 +38,7 @@ def get_data_list(app_ids):
                 'voted_up': review_info['voted_up'],
                 'votes_up': review_info['votes_up'],
                 'votes_funny': review_info['votes_funny'],
-                'weighted_vote_score': review_info['weighted_vote_score'],
-                'comment_count': review_info['comment_count']
+                'weighted_vote_score': review_info['weighted_vote_score']
             }
             data_list.append(row)
     

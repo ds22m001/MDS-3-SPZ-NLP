@@ -35,9 +35,7 @@ def visualize_word_count(words, max_words=30, rotation_angle=60):
     plt.show()
 
 
-def readability_scores(texts: [str], title: str = ""):
-    flesch_reading_scores = [textstat.flesch_reading_ease(text) for text in texts]
-    automated_readability_indices = [textstat.automated_readability_index(text) for text in texts]
+def readability_scores(flesch_reading_scores, automated_readability_indices, title: str = ""):
 
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 6))
     st = fig.suptitle(title, fontsize=14)
@@ -57,3 +55,13 @@ def readability_scores(texts: [str], title: str = ""):
     fig.subplots_adjust(top=0.85)
 
     plt.show()
+
+
+def plot_word_count_histogram(lists, labels):
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.hist(lists, bins=30, label=labels, histtype="bar")
+    ax.legend(prop={'size': 10})
+    ax.set_title('Words in Review (Raw vs Cleaned)')
+    plt.show()
+
+

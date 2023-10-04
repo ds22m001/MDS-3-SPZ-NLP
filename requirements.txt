@@ -4,3 +4,5 @@ emoji
 pyspellchecker
 pandas
 textstat
+contractions
+num2words

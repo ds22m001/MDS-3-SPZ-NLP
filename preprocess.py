@@ -6,6 +6,7 @@ from nltk.stem.wordnet import WordNetLemmatizer
 import emoji
 import contractions
 from spellchecker import SpellChecker
+import langid
 
 # Pre-processing
 
@@ -63,3 +64,25 @@ def preProcessData(df):
 
     df["review_clean"] = clean_col
     return df
+
+
+def cleanLanguages(data):
+    # Generate estimated language and its probability
+    data["lanList"] = data["review"].apply(lambda x: langid.classify(x))
+    data["lan"] = data["lanList"].apply(lambda x: x[0])
+    data["lanProb"] = data["lanList"].apply(lambda x: x[1])
+    data.drop(["lanList"], axis=1, inplace = True)
+
+    # Criteria for considering a review in other language
+    language = []
+    for index, row in data.iterrows():
+        if (row["lan"] != "en") & (row["lanProb"] < 16.0):
+            language.append("other")
+        else:
+            language.append("en")
+    data["language"] = language
+    
+    # Drop support columns
+    data.drop(['lan'], axis=1, inplace = True)
+    data.drop(['lanProb'], axis=1, inplace = True)
+    return data

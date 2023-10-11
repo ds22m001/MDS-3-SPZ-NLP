@@ -12,7 +12,7 @@ def get_tfidf_score_for_words(df):
 
     tfidf_scores_df = pd.DataFrame({'Word': feature_names, 'TF-IDF-Score': tfidf_matrix.mean(axis=0).tolist()[0]})
     tfidf_scores_df = tfidf_scores_df.sort_values(by='TF-IDF-Score', ascending=False)
-    return tfidf_scores_df
+    return tfidf_scores_df.reset_index(drop=True)
 
 def get_random_reviews_per_appid(df, n=5):
     app_ids = df['app_id'].unique().tolist()
